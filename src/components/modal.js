@@ -1,16 +1,14 @@
 //функция открытия попапов
 
-function openPopup(querySelectorClassName) {
-  const popup = querySelectorClassName;
-  popup.classList.add("popup_is-opened");
+function openPopup(popupElement) {
+  popupElement.classList.add("popup_is-opened");
   document.addEventListener("keydown", closeByEscape);
 }
 
 //функция закрытия попапов
 
-function closePopup(querySelectorClassName) {
-  const popup = querySelectorClassName;
-  popup.classList.remove("popup_is-opened");
+function closePopup(popupElement) {
+  popupElement.classList.remove("popup_is-opened");
   document.removeEventListener("keydown", closeByEscape);
 }
 
@@ -34,4 +32,4 @@ function closeByOverlay(evt) {
   }
 }
 
-export { openPopup, closePopup, closeByEscape, closeByOverlay };
+export { openPopup, closePopup, closeByOverlay };
