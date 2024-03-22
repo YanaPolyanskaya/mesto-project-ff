@@ -1,92 +1,109 @@
 // функция показа/скрытия ошибок валидации
 
-function showError(input, errorMessage, validationConfig) {
-  const errorElement = input
-    .closest(validationConfig.formSelector)
-    .querySelector(`.popup__input_type_error-${input.name}`);
-
-  input.classList.add(validationConfig.inputErrorClass);
-
+const showError = (
+  formElement,
+  inputElement,
+  errorMessage,
+  validationConfig
+) => {
+  const errorElement = formElement.querySelector(`.${inputElement.id}-error`);
+  inputElement.classList.add(validationConfig.inputErrorClass);
+  errorElement.classList.add(validationConfig.errorClass);
   errorElement.textContent = errorMessage;
-}
+};
 
-function hideError(input, validationConfig) {
-  const errorElement = input
-    .closest(validationConfig.formSelector)
-    .querySelector(`.popup__input_type_error-${input.name}`);
-
-  input.classList.remove(validationConfig.inputErrorClass);
-
-  errorElement.textContent = ;
-}
+const hideError = (formElement, inputElement, validationConfig) => {
+  const errorElement = formElement.querySelector(`.${inputElement.id}-error`);
+  inputElement.classList.remove(validationConfig.inputErrorClass);
+  errorElement.classList.remove(validationConfig.errorClass);
+  errorElement.textContent = "";
+};
 
 // проверка валидации полей
 
-function checkInputValidity(input, validationConfig) {
-  if (input.validity.valueMissing) {
-    showError(inpit, "Это обязательное поле", validationConfig);
-
-    return false;
-  }
-
-  if (input.validity.pattenMismath)
-    input.setCustomValidity(input.dataset.error);
-  else input.setCustomValidity("");
-
-  if (input.validity.valid) hideError(input, validationConfig);
-  else showError(input, input.validationMessge, validationConfig);
-
-  return true;
-}
-
-// обработчик события валидации
-
-function setEventListeners(form, validationConfig) {
-  const sabmitButton = form.querySelector(
-    validationConfig.sabmitButtonSelector
+const isValid = (formElement, inputElement, validationConfig) => {
+  inputElement.setCustomValidity(
+    inputElement.validity.patternMismatch
+      ? inputElement.dataset.errorMessage
+      : ""
   );
+  if (!inputElement.validity.valid) {
+    showError(
+      formElement,
+      inputElement,
+      inputElement.validationMessge,
+      validationConfig
+    );
 
-  form.addEventListener("input", (evt) => {
-    const input = evt.target;
-    const isFormValid = fotm.checkValidity();
+    return;
+  }
+  hideError(formElement, inputElement, validationConfig);
+};
 
-    checkInputValidity(input, validationConfig);
-    toggleButton(isFormValid, submitButton, validationConfig);
+const invalidInput = (inputList) => {
+  return inputList.some((inputElement) => {
+    return !inputElement.validity.valid;
   });
-  form.addEventListener("reset", () => clearValidation(form, validationConfig));
-}
-
-// подключение валидации к формам
-
-function enableValidation(validationConfig) {
-  const forms = document.querySelectorAll(validationConfig.formSelector);
-
-  forms.forEach((form) => setEventListeners(form, validationConfig));
-}
+};
 
 // подключение кнопки к попапам
 
-function toggleButtonState(isValid, button, validationConfig) {
-  if (isValid) {
-    button.removeAttribute("disabled");
-    button.classList.remove(validationConfig.inactiveButtonClass);
-  } else {
-    button.disabled = true;
-    button.classList.add(validationConfig.inactiveButtonClass);
+const toggleButtonState = (inputSelector, sabmitButton, validationConfig) => {
+  if (invalidInput(inputSelector)) {
+    sabmitButton.disabled = true;
+    sabmitButton.classList.add(validationConfig.inactiveButtonClass);
+    return;
   }
-}
+  sabmitButton.disabled = false;
+  sabmitButton.classList.remove(validationConfig.inactiveButtonClass);
+};
+
+// обработчик события валидации
+
+const setEventListeners = (formElement, validationConfig) => {
+  const inputSelector = Array.from(
+    formElement.querySelectorAll(validationConfig.inputSelector)
+  );
+  const sabmitButton = formElement.querySelector(
+    validationConfig.sabmitButtonSelect
+  );
+
+  toggleButtonState(inputSelector, sabmitButton, validationConfig);
+  inputSelector.forEach((inputElement) => {
+    inputElement.addEventListener("input", () => {
+      isValid(formElement, inputElement, validationConfig);
+      toggleButtonState(inputSelector, sabmitButton, validationConfig);
+    });
+  });
+};
+
+// подключение валидации к формам
+
+const enableValidation = (validationConfig) => {
+  const forms = Array.from(
+    document.querySelectorAll(validationConfig.formSelector)
+  );
+
+  forms.forEach((formElement) => {
+    setEventListeners(formElement, validationConfig);
+  });
+};
 
 // сбросить валидацию
 
-function clearValidation(form, validationConfig) {
-  const inputs = form.querySelectorAll(validationConfig.inputSelector);
-  const submitButton = form.querySelector(
+const clearValidation = (formElement, validationConfig) => {
+  const inputs = Array.from(
+    formElement.querySelectorAll(validationConfig.inputSelector)
+  );
+  const submitButton = formElement.querySelector(
     validationConfig.submitButtonSelector
   );
 
-  inputs.forEach((input) => hideError(input, validationConfig));
+  inputs.forEach((inputElement) =>
+    hideError(formElement, formElement, validationConfig)
+  );
 
-  toggleButtonState(false, submitButton, validationConfig);
-}
+  toggleButtonState(inputs, submitButton, validationConfig);
+};
 
 export { enableValidation, clearValidation };

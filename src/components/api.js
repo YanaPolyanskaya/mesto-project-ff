@@ -1,118 +1,100 @@
 // ссылка на api и токен
 
 const config = {
-  url: "https://mesto.nomoreparties.co/v1/wff-cohort-8",
+  url: 'https://nomoreparties.co/v1/wff-cohort-8',
   headers: {
-    authorization: "ef512834-9b26-41cd-a602-e09a810821d5",
-    "Content-Type": "application/json",
-  },
-};
-
-// получение данных
-
-function checkAnswer(res) {
-  if (res.ok) return res.json();
-
-  return Promise.reject(`Ошибка: ${res.status}`);
+    authorization: 'ef512834-9b26-41cd-a602-e09a810821d5',
+    'Content-Type': 'application/json'
+  }
 }
 
-// отправка аватарки
-
-function updateAvatar(avatar) {
-  return fetch(`${config.url}/users/me/avatar`, {
-    method: "PATCH",
+const sendRequest = async (action, method, bodyObj) => {
+  const actionUrl = `${config.url}/${action}`;
+  const res = await fetch(actionUrl, {
+    method: method,
     headers: config.headers,
-    body: JSON.stringify({ avatar }),
-  }).then((res) => checkAnswer(res));
-}
+    body: JSON.stringify(bodyObj)
+  });
+
+  if (!res.ok) {
+    throw new Error(
+      `Запрос по адресу \'${actionUrl}\' вернул код состояния \'${res.status}\'.`
+    );
+  }
+
+  return await res.json();
+};
 
 // данные профиля
 
-function getProfileInfo() {
-  return fetch(`${config.url}/users/me`, {
-    // method: "GET",
-    headers: config.headers,
-  }).then((res) => checkAnswer(res));
-}
-
-// отправка отредактированных данных
-
-function editProfileInfo(name, about) {
-  return fetch(`${config.url}/users/me`, {
-    method: "PATCH",
-    headers: config.headers,
-    body: JSON.stringify({ 
-      name: name,
-      about: about,
-    }),
-  }).then((res) => checkAnswer(res));
-}
-
-// получение отредактированных данных
-
-function getInitialCards() {
-  return fetch(`${config.url}/cards`, {
-    headers: config.headers,
-  }).then((res) => checkAnswer(res));
-}
-
-// отправка новой карточки
-
-function addCard(name, link) {
-  return fetch(`${config.url}/cards`, {
-    method: "POST",
-    headers: config.headers,
-    body: JSON.stringify({
-      name: name,
-      link: link,
-    }),
-  }).then((res) => checkAnswer(res));
-}
-
-// удаление текущей карточки
-
-function deleteCard(cardId) {
-  return fetch(`${config.url}/cards/${cardId}`, {
-    method: "DELETE",
-    headers: config.headers,
-  }).then((res) => checkAnswer(res));
-}
-
-// лайк текущей карточки
-
-function likeCard(cardId) {
-  return fetch(`${config.url}/cards/likes${cardId}`, {
-    method: "PUT",
-    headers: config.headers,
-  }).then((res) => checkAnswer(res));
-}
-
-// удаление лайка текущей карточки
-
-function disLikeCard(cardId) {
-  return fetch(`${config.url}/cards/likes${cardId}`, {
-    method: "DELETE",
-    headers: config.headers,
-  }).then((res) => checkAnswer(res));
-}
-
-export {
-  updateAvatar,
-  getProfileInfo,
-  editProfileInfo,
-  getInitialCards,
-  addCard,
-  deleteCard,
-  likeCard,
-  disLikeCard,
+const getRequest = async (action) => {
+  return await sendRequest(action, "GET");
 };
 
-// return fetch('https://nomoreparties.co/v1/cohort-42/cards', {
-//   headers: {
-//     authorization: 'c56e30dc-2883-4270-a59e-b2f7bae969c6'
-//   }
-// })
-//   .then(res => res.json())
-//   .then((result) => {
-//     console.log(result);
-//   });
+const getProfileInfo = async () => {
+  return await getRequest("user/me");
+};
+
+const deleteRequest = async (action) => {
+  return await sendRequest(action, "DELETE");
+};
+
+const removeCard = async (id) => {
+  return await deleteRequest(`cards/${id}`);
+};
+
+const postRequest = async (action, bodyObj) => {
+  return await sendRequest(action, "POST", bodyObj);
+};
+
+const addCard = async (card) => {
+  return await postRequest('cards', {
+    name: card.name,
+    link: encodeURI(card.link),
+  });
+};
+
+const putRequest = async (action, bodyObj) => {
+  return await sendRequest(action, "PUT", bodyObj);
+};
+
+const patchRequest = async (action, body) => {
+  return await sendRequest(action, "PATCH", bodyObj);
+};
+
+const editProfileInfo = async (name, about) => {
+  return await patchRequest("user/me", {
+    name,
+    about,
+  });
+};
+
+const getInitialCards = async () => {
+  return await getRequest("cards");
+};
+
+const addLike = async (id) => {
+  return await putRequest(`cards/${id}`);
+};
+
+const removeLike = async (id) => {
+  return await deleteRequest(`cards/likes/${id}`);
+};
+
+const updateAvatar = async (url) => {
+  return await patchRequest(`users/me/avatar`, {
+    avatar: encodeURI(url),
+  });
+};
+
+
+export {
+  getProfileInfo,
+  removeCard,
+  editProfileInfo,
+  getInitialCards,
+  addLike,
+  removeLike,
+  updateAvatar,
+  addCard
+};
