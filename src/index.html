@@ -18,6 +18,7 @@
           class="logo header__logo"
         />
       </header>
+      
       <main class="content">
         <section class="profile page__section">
           <div
@@ -31,13 +32,44 @@
           </div>
           <button class="profile__add-button" type="button"></button>
         </section>
+
         <section class="places page__section">
           <ul class="places__list"></ul>
         </section>
       </main>
+
       <footer class="footer page__section">
         <p class="footer__copyright">© 2021 Mesto Russia</p>
       </footer>
+
+      <div class="popup popup_type_edit_avatar popup_is-animated">
+        <div class="popup__content">
+          <button
+            type="button"
+            class="popup__close"
+          ></button>
+          <h3 class="popup__title">Обновить аватар</h3>
+          <form class="popup__form" name="avatar">
+            <input
+              type="url"
+              name="link"
+              class="popup__input popup__input_type_url"
+              placeholder="Ссылка на картинку"
+              required
+              pattern="https?://.+"
+              data-error="Введите корректный URL"
+            />
+            <span
+              class="popup__error-element popup__input_type_error-link"
+              data-error="link"
+            ></span>
+            <button type="submit" class="button popup__button" required>
+              Сохранить
+            </button>
+          </form>
+        </div>
+      </div>
+
       <div class="popup popup_type_edit popup_is-animated">
         <div class="popup__content">
           <button type="button" class="popup__close"></button>
@@ -49,6 +81,10 @@
               class="popup__input popup__input_type_name"
               placeholder="Имя"
               required
+              minlength="2"
+              maxlength="40"
+              pattern="[A-Za-zА-Яа-яЁё\- ]+"
+              data-error="Разрешены только латинские, кириллические буквы, знаки дефиса и пробелы"
             />
             <input
               type="text"
@@ -56,6 +92,10 @@
               class="popup__input popup__input_type_description"
               placeholder="Занятие"
               required
+              minlength="2"
+              maxlength="40"
+              pattern="[A-Za-zА-Яа-яЁё\- ]+"
+              data-error="Разрешены только латинские, кириллические буквы, знаки дефиса и пробелы"
             />
             <button type="submit" class="button popup__button">
               Сохранить
@@ -74,6 +114,10 @@
               class="popup__input popup__input_type_card-name"
               placeholder="Название"
               required
+              minlength="2"
+              maxlength="40"
+              pattern="[A-Za-zА-Яа-яЁё\- ]+"
+              data-error="Разрешены только латинские, кириллические буквы, знаки дефиса и пробелы"
             />
             <input
               type="url"
@@ -81,6 +125,8 @@
               class="popup__input popup__input_type_url"
               placeholder="Ссылка на картинку"
               required
+              pattern="https?://.+"
+              data-error="Введите корректный URL"
             />
             <button type="submit" class="button popup__button">
               Сохранить
