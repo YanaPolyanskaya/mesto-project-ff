@@ -1,5 +1,6 @@
 # Проектная работа Mesto
-https://github.com/YanaPolyanskaya/mesto-project-ff.git
+https://YanaPolyanskaya.github.io/mesto-project
 созданы функции создания и удаления карточки
 добавлены функции открытия/закрытия попапов
-
+интегрирован API
+настроена валидация форм
