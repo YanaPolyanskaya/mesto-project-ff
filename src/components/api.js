@@ -1,100 +1,93 @@
 // ссылка на api и токен
 
 const config = {
-  url: 'https://nomoreparties.co/v1/wff-cohort-8',
-  headers: {
-    authorization: 'ef512834-9b26-41cd-a602-e09a810821d5',
-    'Content-Type': 'application/json'
-  }
+    url: "https://mesto.nomoreparties.co/v1/wff-cohort-8",
+    headers: {
+        authorization: "ef512834-9b26-41cd-a602-e09a810821d5",
+        "Content-Type": "application/json",
+    },
+};
+
+function sendRequest(action, method, bodyObj) {
+    return fetch(`${config.url}/${action}`, {
+        method: method,
+        headers: config.headers,
+        body: JSON.stringify(bodyObj),
+    }).then((res) => {
+        if (res.ok)
+            return res.json();
+
+        return Promise.reject(`Ошибка: ${res.status}`);
+    });
 }
 
-const sendRequest = async (action, method, bodyObj) => {
-  const actionUrl = `${config.url}/${action}`;
-  const res = await fetch(actionUrl, {
-    method: method,
-    headers: config.headers,
-    body: JSON.stringify(bodyObj)
-  });
+function getProfileInfo() {
+    return sendRequest('users/me', 'get');
+}
 
-  if (!res.ok) {
-    throw new Error(
-      `Запрос по адресу \'${actionUrl}\' вернул код состояния \'${res.status}\'.`
-    );
-  }
+function getInitialCards() {
+    return sendRequest('cards', 'get');
+}
 
-  return await res.json();
-};
+function editProfileInfo(name, about) {
+    return sendRequest('users/me', 'PATCH', {
+        name: name,
+        about: about
+    });
+}
 
-// данные профиля
+function addCard(name, link) {
+    return sendRequest('/cards', 'POST', {
+        name: name,
+        link: link
+    });
+}
 
-const getRequest = async (action) => {
-  return await sendRequest(action, "GET");
-};
+function removeCard(cardId) {
+    return sendRequest(`cards/${cardId}`, 'DELETE');
+}
 
-const getProfileInfo = async () => {
-  return await getRequest("user/me");
-};
+function updateAvatar(avatar) {
+    return  sendRequest('users/me/avatar', 'PATCH', { avatar: avatar });
+}
 
-const deleteRequest = async (action) => {
-  return await sendRequest(action, "DELETE");
-};
 
-const removeCard = async (id) => {
-  return await deleteRequest(`cards/${id}`);
-};
 
-const postRequest = async (action, bodyObj) => {
-  return await sendRequest(action, "POST", bodyObj);
-};
 
-const addCard = async (card) => {
-  return await postRequest('cards', {
-    name: card.name,
-    link: encodeURI(card.link),
-  });
-};
 
-const putRequest = async (action, bodyObj) => {
-  return await sendRequest(action, "PUT", bodyObj);
-};
 
-const patchRequest = async (action, body) => {
-  return await sendRequest(action, "PATCH", bodyObj);
-};
 
-const editProfileInfo = async (name, about) => {
-  return await patchRequest("user/me", {
-    name,
-    about,
-  });
-};
+function likeCard(cardId) {
+    return fetch(`${config.url}/cards/likes${cardId}`, {
+        method: "PUT",
+        headers: config.headers,
+    }).then((res) => checkAnswer(res));
+}
 
-const getInitialCards = async () => {
-  return await getRequest("cards");
-};
+// удаление лайка текущей карточки
 
-const addLike = async (id) => {
-  return await putRequest(`cards/${id}`);
-};
-
-const removeLike = async (id) => {
-  return await deleteRequest(`cards/likes/${id}`);
-};
-
-const updateAvatar = async (url) => {
-  return await patchRequest(`users/me/avatar`, {
-    avatar: encodeURI(url),
-  });
-};
-
+function disLikeCard(cardId) {
+    return fetch(`${config.url}/cards/likes${cardId}`, {
+        method: "DELETE",
+        headers: config.headers,
+    }).then((res) => checkAnswer(res));
+}
 
 export {
-  getProfileInfo,
-  removeCard,
-  editProfileInfo,
-  getInitialCards,
-  addLike,
-  removeLike,
-  updateAvatar,
-  addCard
+    getProfileInfo,
+    getInitialCards,
+    editProfileInfo,
+    addCard,
+    removeCard,
+    updateAvatar
 };
+
+// return fetch('https://nomoreparties.co/v1/cohort-42/cards', {
+//   headers: {
+//     authorization: 'c56e30dc-2883-4270-a59e-b2f7bae969c6'
+//   }
+// })
+//   .then(res => res.json())
+//   .then((result) => {
+//     console.log(result);
+//   });

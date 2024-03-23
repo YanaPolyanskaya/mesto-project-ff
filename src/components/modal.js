@@ -24,12 +24,21 @@ function closeByEscape(evt) {
 
 //функция закрытия при нажатии на overlay
 
-function closeByOverlay(evt) {
-  if (evt.target.matches(".popup_is-opened, .popup__close")) {
-    const openedPopup = document.querySelector(".popup_is-opened");
 
-    closePopup(openedPopup);
+function closeByOverlay(evt) {
+
+  if (evt.target === evt.currentTarget) {
+    closePopup(evt.currentTarget);
   }
 }
+
+
+// function closeByOverlay(evt) {
+//   if (evt.target.matches(".popup_is-opened, .popup__close")) {
+//     const openedPopup = document.querySelector(".popup_is-opened");
+
+//     closePopup(openedPopup);
+//   }
+// }
 
 export { openPopup, closePopup, closeByOverlay };

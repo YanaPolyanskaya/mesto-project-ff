@@ -1,109 +1,70 @@
-// функция показа/скрытия ошибок валидации
-
-const showError = (
-  formElement,
-  inputElement,
-  errorMessage,
-  validationConfig
-) => {
+const showInputError = (formElement, inputElement, errorMessage, validateConfiguration) => {
   const errorElement = formElement.querySelector(`.${inputElement.id}-error`);
-  inputElement.classList.add(validationConfig.inputErrorClass);
-  errorElement.classList.add(validationConfig.errorClass);
+  inputElement.classList.add(validateConfiguration.inputErrorClass);
   errorElement.textContent = errorMessage;
-};
+  errorElement.classList.add(validateConfiguration.errorClass);
+}
 
-const hideError = (formElement, inputElement, validationConfig) => {
+const hideInputError = (formElement, inputElement, validateConfiguration) => {
   const errorElement = formElement.querySelector(`.${inputElement.id}-error`);
-  inputElement.classList.remove(validationConfig.inputErrorClass);
-  errorElement.classList.remove(validationConfig.errorClass);
-  errorElement.textContent = "";
-};
+  inputElement.classList.remove(validateConfiguration.inputErrorClass);
+  errorElement.classList.remove(validateConfiguration.errorClass);
+  errorElement.textContent = '';
+}
 
-// проверка валидации полей
+const isValid = (formElement, inputElement, validateConfiguration) => {
+  inputElement.setCustomValidity(inputElement.validity.patternMismatch ? inputElement.dataset.errorMessage : '');
 
-const isValid = (formElement, inputElement, validationConfig) => {
-  inputElement.setCustomValidity(
-    inputElement.validity.patternMismatch
-      ? inputElement.dataset.errorMessage
-      : ""
-  );
   if (!inputElement.validity.valid) {
-    showError(
-      formElement,
-      inputElement,
-      inputElement.validationMessge,
-      validationConfig
-    );
-
+    showInputError(formElement, inputElement, inputElement.validationMessage, validateConfiguration);
     return;
   }
-  hideError(formElement, inputElement, validationConfig);
-};
 
-const invalidInput = (inputList) => {
+  hideInputError(formElement, inputElement, validateConfiguration);
+}
+
+const hasInvalidInput = (inputList) => {
   return inputList.some((inputElement) => {
     return !inputElement.validity.valid;
-  });
+  })
 };
 
-// подключение кнопки к попапам
-
-const toggleButtonState = (inputSelector, sabmitButton, validationConfig) => {
-  if (invalidInput(inputSelector)) {
-    sabmitButton.disabled = true;
-    sabmitButton.classList.add(validationConfig.inactiveButtonClass);
+const toggleButtonState = (inputList, buttonElement, validateConfiguration) => {
+  if (hasInvalidInput(inputList)) {
+    buttonElement.disabled = true;
+    buttonElement.classList.add(validateConfiguration.inactiveButtonClass);
     return;
   }
-  sabmitButton.disabled = false;
-  sabmitButton.classList.remove(validationConfig.inactiveButtonClass);
+
+  buttonElement.disabled = false;
+  buttonElement.classList.remove(validateConfiguration.inactiveButtonClass);
 };
 
-// обработчик события валидации
+const setEventListeners = (formElement, validateConfiguration) => {
+  const inputList = Array.from(formElement.querySelectorAll(validateConfiguration.inputSelector));
+  const buttonElement = formElement.querySelector(validateConfiguration.submitButtonSelector);
 
-const setEventListeners = (formElement, validationConfig) => {
-  const inputSelector = Array.from(
-    formElement.querySelectorAll(validationConfig.inputSelector)
-  );
-  const sabmitButton = formElement.querySelector(
-    validationConfig.sabmitButtonSelect
-  );
-
-  toggleButtonState(inputSelector, sabmitButton, validationConfig);
-  inputSelector.forEach((inputElement) => {
-    inputElement.addEventListener("input", () => {
-      isValid(formElement, inputElement, validationConfig);
-      toggleButtonState(inputSelector, sabmitButton, validationConfig);
+  toggleButtonState(inputList, buttonElement, validateConfiguration);
+  inputList.forEach((inputElement) => {
+    inputElement.addEventListener('input', () => {
+      isValid(formElement, inputElement, validateConfiguration);
+      toggleButtonState(inputList, buttonElement, validateConfiguration);
     });
   });
 };
 
-// подключение валидации к формам
+export const enableValidation = validateConfiguration => {
+  const formList = Array.from(document.querySelectorAll(validateConfiguration.formSelector));
 
-const enableValidation = (validationConfig) => {
-  const forms = Array.from(
-    document.querySelectorAll(validationConfig.formSelector)
-  );
-
-  forms.forEach((formElement) => {
-    setEventListeners(formElement, validationConfig);
+  formList.forEach((formElement) => {
+    setEventListeners(formElement, validateConfiguration);
   });
 };
 
-// сбросить валидацию
+export const clearValidation = (formElement, validateConfiguration) => {
+  const inputList = Array.from(formElement.querySelectorAll(validateConfiguration.inputSelector));
+  const buttonElement = formElement.querySelector(validateConfiguration.submitButtonSelector);
 
-const clearValidation = (formElement, validationConfig) => {
-  const inputs = Array.from(
-    formElement.querySelectorAll(validationConfig.inputSelector)
-  );
-  const submitButton = formElement.querySelector(
-    validationConfig.submitButtonSelector
-  );
-
-  inputs.forEach((inputElement) =>
-    hideError(formElement, formElement, validationConfig)
-  );
-
-  toggleButtonState(inputs, submitButton, validationConfig);
-};
-
-export { enableValidation, clearValidation };
+  inputList.forEach((inputElement) => hideInputError(formElement, inputElement, validateConfiguration));
+  toggleButtonState(inputList, buttonElement, validateConfiguration);
+}
