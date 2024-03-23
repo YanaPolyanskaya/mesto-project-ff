@@ -1,4 +1,6 @@
-function createCard(cardData, profileId, onDelete, onOpenImage, likeCardCallback) {
+import {disLikeCard, likeCard, removeCard} from "./api";
+
+function createCard(cardData, profileId, onOpenImage) {
   const cardTemplate = document.querySelector("#card-template").content;
   const card = cardTemplate.querySelector(".card").cloneNode(true);
   const cardImage = card.querySelector(".card__image");
@@ -8,13 +10,13 @@ function createCard(cardData, profileId, onDelete, onOpenImage, likeCardCallback
   const countLikeElement = card.querySelector('.card__like-button_couter');
 
   cardImage.src = cardData.link;
+  cardImage.alt = cardData.name;
   cardTitle.textContent = cardData.name;
 
   cardImage.addEventListener("click", () => onOpenImage(cardData.link, cardData.name));
-  cardDeleteButton.addEventListener("click", () => onDelete(card, cardData));
 
   if (cardData.owner._id === profileId) {
-    cardDeleteButton.addEventListener("click", () => onDelete(card, cardData));
+    cardDeleteButton.addEventListener("click", () => removeCardCallback(card, cardData));
   } else {
     cardDeleteButton.remove();
   }
@@ -42,4 +44,24 @@ function deleteCard(card) {
   card.remove();
 }
 
-export { createCard, deleteCard, isLikedCard, toggleLikeCard };
+function removeCardCallback(cardElement, cardData) {
+  removeCard(cardData._id)
+      .then(() => deleteCard(cardElement))
+      .catch((error) => console.error('Ошибка при удалении карточки:', error));
+}
+
+function likeCardCallback(cardId, likeCountElement, likeButton) {
+  if (isLikedCard(likeButton)) {
+    disLikeCard(cardId).then(card => {
+      likeCountElement.textContent = card.likes.length;
+      toggleLikeCard(likeButton);
+    }).catch((error) => console.error('Ошибка при дизлайке карточки: ', error))
+  } else {
+    likeCard(cardId).then(card => {
+      likeCountElement.textContent = card.likes.length;
+      toggleLikeCard(likeButton);
+    }).catch((error) => console.error('Ошибка при лайке карточки: ', error))
+  }
+}
+
+export { createCard };

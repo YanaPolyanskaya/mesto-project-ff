@@ -1,5 +1,5 @@
 import '../pages/index.css';
-import {createCard, deleteCard, isLikedCard, toggleLikeCard} from '../components/card';
+import {createCard} from '../components/card';
 import {openPopup, closePopup, closeByOverlay} from '../components/modal';
 import {enableValidation, clearValidation} from '../components/validation';
 import {
@@ -7,8 +7,7 @@ import {
     getInitialCards,
     editProfileInfo,
     addCard,
-    removeCard,
-    updateAvatar, disLikeCard, likeCard
+    updateAvatar
 } from '../components/api';
 
 const validationConfig = {
@@ -92,9 +91,12 @@ function handleProfileFormSubmit(evt) {
 }
 
 
-addCardButton.addEventListener('click', () => openPopup(popupAddCard));
-popupAddCardCloseButton.addEventListener('click', () => closePopup(popupAddCard));
+addCardButton.addEventListener('click', () => {
+    openPopup(popupAddCard);
+    clearValidation(popupAddCardForm, validationConfig);
+});
 
+popupAddCardCloseButton.addEventListener('click', () => closePopup(popupAddCard));
 
 popupAddCardForm.addEventListener('submit', handleNewCardFormSubmit);
 
@@ -109,9 +111,7 @@ function handleNewCardFormSubmit(evt) {
             const newCard = createCard(
                 cardData,
                 profileId,
-                deleteCard,
-                onOpenImage,
-                likeCardCallback
+                onOpenImage
             );
 
             placesList.prepend(newCard);
@@ -121,15 +121,6 @@ function handleNewCardFormSubmit(evt) {
         })
         .catch((error) => console.error('Ошибка при добавлении карточки:', error))
         .finally(() => (evt.submitter.textContent = originalButtonText));
-
-    clearValidation(popupAddCardForm, validationConfig);
-}
-
-
-function removeCardCallback(cardElement, cardData) {
-    removeCard(cardData._id)
-        .then(() => deleteCard(cardElement))
-        .catch((error) => console.error('Ошибка при удалении карточки:', error));
 }
 
 
@@ -139,7 +130,6 @@ function openEditAvatarPopup() {
     openPopup(popupEditAvatar);
     clearValidation(popupEditAvatarForm, validationConfig);
 }
-
 
 popupEditAvatarForm.addEventListener('submit', handleAvatarFormSubmit);
 
@@ -153,26 +143,13 @@ function handleAvatarFormSubmit(evt) {
         .then((profileData) => {
             profileAvatar.style.backgroundImage = `url(${profileData.avatar})`;
             closePopup(popupEditAvatar);
+            popupEditAvatarForm.reset();
         })
         .catch((error) => console.error('Ошибка при обновлении аватара пользователя', error))
         .finally(() => evt.submitter.textContent = originalButtonText);
 }
 
 popupAvatarCloseButton.addEventListener('click', () => closePopup(popupEditAvatar));
-
-const likeCardCallback = async (cardId, likeCountElement, likeButton) => {
-    if (isLikedCard(likeButton)) {
-        disLikeCard(cardId).then(card => {
-            likeCountElement.textContent = card.likes.length;
-            toggleLikeCard(likeButton);
-        }).catch((error) => console.error('Ошибка при дизлайке карточки: ', error))
-    } else {
-        likeCard(cardId).then(card => {
-            likeCountElement.textContent = card.likes.length;
-            toggleLikeCard(likeButton);
-        }).catch((error) => console.error('Ошибка при лайке карточки: ', error))
-    }
-}
 
 function initializeProfile(profileData) {
     profileId = profileData._id;
@@ -184,7 +161,7 @@ function initializeProfile(profileData) {
 function initializeCards(cardsData) {
     cardsData.forEach((cardData) => {
         placesList.append(
-            createCard(cardData, profileId, removeCardCallback, onOpenImage, likeCardCallback)
+            createCard(cardData, profileId, onOpenImage)
         );
     });
 }
