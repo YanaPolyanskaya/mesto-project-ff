@@ -48,13 +48,8 @@ function removeCard(cardId) {
 }
 
 function updateAvatar(avatar) {
-    return  sendRequest('users/me/avatar', 'PATCH', { avatar: avatar });
+    return sendRequest('users/me/avatar', 'PATCH', { avatar: avatar });
 }
-
-
-
-
-
 
 
 function likeCard(cardId) {

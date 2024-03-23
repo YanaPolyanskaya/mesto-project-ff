@@ -32,7 +32,6 @@ function closeByOverlay(evt) {
   }
 }
 
-
 // function closeByOverlay(evt) {
 //   if (evt.target.matches(".popup_is-opened, .popup__close")) {
 //     const openedPopup = document.querySelector(".popup_is-opened");
