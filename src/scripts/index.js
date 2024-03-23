@@ -1,14 +1,14 @@
 import '../pages/index.css';
-import { createCard, deleteCard } from '../components/card';
-import { openPopup, closePopup, closeByOverlay } from '../components/modal';
-import { enableValidation, clearValidation } from '../components/validation';
+import {createCard, deleteCard, isLikedCard, toggleLikeCard} from '../components/card';
+import {openPopup, closePopup, closeByOverlay} from '../components/modal';
+import {enableValidation, clearValidation} from '../components/validation';
 import {
     getProfileInfo,
     getInitialCards,
     editProfileInfo,
     addCard,
     removeCard,
-    updateAvatar
+    updateAvatar, disLikeCard, likeCard
 } from '../components/api';
 
 const validationConfig = {
@@ -83,7 +83,6 @@ function handleProfileFormSubmit(evt) {
 
     editProfileInfo(popupEditProfileNameInput.value, popupEditProfileJobInput.value)
         .then((profileData) => {
-            debugger
             profileTitle.textContent = profileData.name;
             profileDescription.textContent = profileData.about;
             closePopup(popupEditProfile);
@@ -111,7 +110,8 @@ function handleNewCardFormSubmit(evt) {
                 cardData,
                 profileId,
                 deleteCard,
-                onOpenImage
+                onOpenImage,
+                likeCardCallback
             );
 
             placesList.prepend(newCard);
@@ -160,6 +160,19 @@ function handleAvatarFormSubmit(evt) {
 
 popupAvatarCloseButton.addEventListener('click', () => closePopup(popupEditAvatar));
 
+const likeCardCallback = async (cardId, likeCountElement, likeButton) => {
+    if (isLikedCard(likeButton)) {
+        disLikeCard(cardId).then(card => {
+            likeCountElement.textContent = card.likes.length;
+            toggleLikeCard(likeButton);
+        }).catch((error) => console.error('Ошибка при дизлайке карточки: ', error))
+    } else {
+        likeCard(cardId).then(card => {
+            likeCountElement.textContent = card.likes.length;
+            toggleLikeCard(likeButton);
+        }).catch((error) => console.error('Ошибка при лайке карточки: ', error))
+    }
+}
 
 function initializeProfile(profileData) {
     profileId = profileData._id;
@@ -171,7 +184,7 @@ function initializeProfile(profileData) {
 function initializeCards(cardsData) {
     cardsData.forEach((cardData) => {
         placesList.append(
-            createCard(cardData, profileId, removeCardCallback, onOpenImage)
+            createCard(cardData, profileId, removeCardCallback, onOpenImage, likeCardCallback)
         );
     });
 }
@@ -193,66 +206,4 @@ function onOpenImage(link, name) {
 
 popupCardViewCloseButton.addEventListener('click', () => closePopup(popupCardView));
 
-
 enableValidation(validationConfig);
-
-// initialCards.forEach((cardItem) =>
-//   placesList.append(createCard(cardItem, openCard, changeLikeCard, deleteMyCard))
-// );
-
-
-// const avatarForm = document.querySelector('.popup__form[name="avatar"]'),
-//
-
-// // function handleProfileFormSubmit(evt) {
-// //   evt.preventDefault();
-
-// //   popupEditProfileButton.textContent = "Сохранение...";
-
-// //   editProfile(profileNameInput.value, profileJobInput.value)
-// //     .then((profileData) => {
-// //       profileTitle.textContent = profileData.name;
-// //       profileDescription.textContent = profileData.about;
-
-// //       // profileTitle.textContent = profileNameInput.value;
-// //       // profileDescription.textContent = profileJobInput.value;
-
-// //       closePopup(popupEditProfile);
-// //     })
-// //     .catch((error) =>
-// //       console.error("Ошибка при получении данных пользователя:", error)
-// //     )
-
-// //     .finally(() => (popupEditProfileButton.textContent = originalButtonText));
-
-// //   clearValidation(profileForm, validationConfig);
-// // }
-
-// avatarForm.addEventListener("submit", handleAvatarFormSubmit);
-
-// cardForm.addEventListener("submit", handleNewCardFormSubmit);
-
-// profileAvatarEditButton.addEventListener("click", () => openEditAvatarPopup());
-
-
-// clearValidation(avatarForm, validationConfig);
-// clearValidation(profileForm, validationConfig);
-// clearValidation(cardForm, validationConfig);
-
-// // 
-
-// // profileForm.addEventListener("submit", handleProfileFormSubmit);
-// // cardForm.addEventListener("submit", handleNewCardFormSubmit);
-
-// // profileEditButton.addEventListener("click", () => {
-// //   profileNameInput.value = profileTitle.textContent;
-// //   profileJobInput.value = profileDescription.textContent;
-
-// //   openPopup(popupEditProfile);
-// // });
-
-// // profileAddButton.addEventListener("click", () => openPopup(popupNewCard));
-
-// // popups.forEach((popup) => {
-// //   popup.addEventListener("mousedown", closeByOverlay);
-// // });

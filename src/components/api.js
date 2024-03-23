@@ -51,21 +51,12 @@ function updateAvatar(avatar) {
     return sendRequest('users/me/avatar', 'PATCH', { avatar: avatar });
 }
 
-
-function likeCard(cardId) {
-    return fetch(`${config.url}/cards/likes${cardId}`, {
-        method: "PUT",
-        headers: config.headers,
-    }).then((res) => checkAnswer(res));
+function disLikeCard(cardId) {
+    return sendRequest(`cards/likes/${cardId}`, 'DELETE');
 }
 
-// удаление лайка текущей карточки
-
-function disLikeCard(cardId) {
-    return fetch(`${config.url}/cards/likes${cardId}`, {
-        method: "DELETE",
-        headers: config.headers,
-    }).then((res) => checkAnswer(res));
+function likeCard(cardId) {
+    return sendRequest(`cards/likes/${cardId}`, 'PUT');
 }
 
 export {
@@ -74,15 +65,7 @@ export {
     editProfileInfo,
     addCard,
     removeCard,
-    updateAvatar
+    updateAvatar,
+    disLikeCard,
+    likeCard
 };
-
-// return fetch('https://nomoreparties.co/v1/cohort-42/cards', {
-//   headers: {
-//     authorization: 'c56e30dc-2883-4270-a59e-b2f7bae969c6'
-//   }
-// })
-//   .then(res => res.json())
-//   .then((result) => {
-//     console.log(result);
-//   });
