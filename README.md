@@ -13,7 +13,4 @@
     <img height="50" width="50" src="https://github.com/devicons/devicon/blob/master/icons/javascript/javascript-original.svg" alt="javascript" title="javascript"/>&nbsp;
     <img height="50" width="50" src="https://github.com/devicons/devicon/blob/master/icons/webpack/webpack-original.svg" alt="webpack" title="webpack"/>&nbsp;  
   </div>
-  <div align="center">
-    <a href="https://github.com/YanaPolyanskaya/slozhno-sosredotochitsya.git">Ссылка на репозиторий</a>
-  </div>
 </div>
